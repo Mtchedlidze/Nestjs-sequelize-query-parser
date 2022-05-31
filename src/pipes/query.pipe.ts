@@ -1,57 +1,61 @@
-import { ArgumentMetadata, PipeTransform } from '@nestjs/common';
-import { literal, Op } from 'sequelize';
-import { isOrderType } from '../types';
+import { BadRequestException, PipeTransform } from '@nestjs/common'
+import { literal, Op, WhereOptions, GroupOption } from 'sequelize'
+import { isOrderType } from '../types'
+
 export class QueryPipe implements PipeTransform {
-  transform(value: any, metadata: ArgumentMetadata) {
-    this.transformOrder(value);
-    this.transFormPagination(value);
-    if ('filter' in value) {
-      value.filter = this.transFormWhereOptions(value);
-    }
-    return value;
+  transform(value: any) {
+    this.transformOrder(value)
+    this.transformPagination(value)
+    this.transformWhereOptions(value)
+    return value
   }
 
-  private transformOrder(value) {
-    if (value['order']) {
-      const { order } = value;
-      const [columns, orderOpt] = order.split('?') as string;
+  private transformOrder({ order }): void {
+    if (order) {
+      const [columns, orderOpt] = order.split('?') as string
 
       if (!isOrderType(orderOpt.toUpperCase())) {
-        throw new Error('only ASC or DESC is valid order types');
+        throw new BadRequestException('only ASC or DESC is valid order types')
       }
 
-      value['order'] = [literal(columns), orderOpt.toUpperCase()];
+      order = [literal(columns), orderOpt.toUpperCase()]
     }
   }
 
-  private transFormPagination(value) {
-    if (value['limit']) {
-      if (isNaN(+value['limit'])) {
-        throw new Error('only number is allowed for limit value');
+  private transformPagination({ limit, offset }): void {
+    if (limit) {
+      if (isNaN(+limit)) {
+        throw new Error('only number is allowed for limit value')
       }
-      value['limit'] = +value['limit'];
+      limit = +limit
     }
-    if (value['offset']) {
-      if (isNaN(+value['offset'])) {
-        throw new Error('only number is allowed for offset value');
+    if (offset) {
+      if (isNaN(+offset)) {
+        throw new Error('only number is allowed for offset value')
       }
-      value['offset'] = +value['offset'];
+      offset = +offset
     }
   }
 
-  private transFormWhereOptions({ filter }) {
+  private transformWhereOptions({ filter }): void {
     if (filter) {
-      const obj = {};
-      const filters = filter.split('^') as string[];
-      filters.forEach((filter) => {
-        const [column, option, value] = filter.split('.');
-        if (!Op[option]) throw new Error(`${option} is not valid filter `);
+      const filterOptions: WhereOptions<any> = {}
 
-        obj[column] = {
+      const filters = filter.split('^') as string[]
+      filters.forEach((filter) => {
+        const [column, option, value] = filter.split('.')
+        if (!Op[option]) {
+          const errorMessage = `${option} is not valid option for filter, there are valid options: ${Object.keys(
+            Op
+          )}`
+          throw new BadRequestException(errorMessage)
+        }
+
+        filterOptions[column] = {
           [Op[option]]: isNaN(+value) ? value : +value,
-        };
-      });
-      return obj;
+        }
+      })
+      filter = filterOptions
     }
   }
 }
