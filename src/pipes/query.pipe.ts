@@ -3,11 +3,11 @@ import { literal, Op, WhereOptions, GroupOption } from 'sequelize'
 import { isOrderType } from '../types'
 
 export class QueryPipe implements PipeTransform {
-  transform(value: any) {
-    this.transformOrder(value)
-    this.transformPagination(value)
-    this.transformWhereOptions(value)
-    return value
+  transform(query: any) {
+    this.transformOrder(query)
+    this.transformPagination(query)
+    this.transformWhereOptions(query)
+    return query
   }
 
   private transformOrder({ order }): void {
