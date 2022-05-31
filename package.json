@@ -1,0 +1,31 @@
+{
+  "name": "nestjs-sequelize-query-parser",
+  "version": "1.0.0",
+  "description": "Query parser for Nest.js Sequelize",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "prepublish": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mtchedlidze/Nestjs-sequelize-query-parser.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mtchedlidze/Nestjs-sequelize-query-parser/issues"
+  },
+  "homepage": "https://github.com/Mtchedlidze/Nestjs-sequelize-query-parser#readme",
+  "dependencies": {
+    "@nestjs/common": "^8.4.6",
+    "@types/node": "^17.0.36",
+    "reflect-metadata": "^0.1.13",
+    "rimraf": "^3.0.2",
+    "rxjs": "^7.5.5",
+    "sequelize": "^6.20.1",
+    "typescript": "^4.7.2"
+  }
+}
